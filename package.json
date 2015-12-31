@@ -1,0 +1,22 @@
+{
+  "name": "simple-app",
+  "version": "1.0.0",
+  "description": "",
+  "typescript": {
+    "main": "src/app.ts"
+  },
+  "bobril": {
+    "title": "Bobril Hello World"
+  },
+  "author": "keeema",
+  "license": "",
+  "dependencies": {
+    "bobril": "^4.20.0"
+  },
+  "scripts": {
+    "test": "jasmine"
+  },
+  "devDependencies": {
+    "jasmine": "^2.4.1"
+  }
+}
