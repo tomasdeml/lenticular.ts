@@ -41,14 +41,12 @@ const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); //
 ```
 
 ## Expression Format
-The function expression can be defined with an "ordinary" function or an arrow function. The expression can contain variable array indexes (e.g. `[i]`, `[j]` etc.), static indexes (e.g. `1`,`3` etc.). If the expression contains variable array indexes, all their values must be provided when creating a lens from the path in the order that matches declaration of the indexes in function arguments.
+The path expression should be defined with an function containing a single return expression (currently the expression must be contained in a `function` with a `return` keyword). The expression must start with a reference to the root object and must end with a reference to the property to get/set/modify. The expression can contain variable array indexes (e.g. `[i]`, `[j]` etc.), static indexes (e.g. `1`,`3` etc.). If the expression contains variable array indexes, all their values must be provided when creating a lens from the path in the order that matches declaration of the indexes in function arguments.
 
 ### Examples of Supported Expression Formats
-The expression must start with a reference to the root object and must end with a reference to the property to get/set/modify.
-
 ```javascript
-const expression1 = (s: IState) => s.list; // Path defined with an arrow function
-const expression2 = function(s: IState) { return s.list; }; // Path defined with an ordinary function 
+const expression1 = (s: IState) => s.list; // Path defined with an arrow function (that must be currently transpiled by TSC to an ordinary function)
+const expression2 = function(s: IState) { return s.list; }; // Path defined with an ordinary function
 const epxression3 = s => s.list; // Will not be checked by TypeScript compiler as there are no type information available
 const expression4 = (s: IState) => s.list.items[0].name; // Contains static array index pointing to the first item
 const expression5 = (s: IState) => s.list.items[10].name; // Contains static array index pointing to a non-existent item in the array - the item will be created during lens.set() invocation
