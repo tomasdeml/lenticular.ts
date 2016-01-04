@@ -1,5 +1,5 @@
 # lenticular.ts
-Proof of concept for functional lenses in JavaScript/TypeScript. 
+(Yet Another) Proof of concept for functional lenses in JavaScript/TypeScript. 
 Lenses are functions that provide reusable views into deep data structures. Lenses are bidirectional as they can be composed to get or set arbitrary data within a deeply-nested, immutable data structure.
 
 The novelty of lenticular.ts lies in strongly-typed composition of lenses for deeply-nested views into immutable objects. Instead of hard-coding names of object properties, lenticular.ts allows you to define the view path using a function expression. Because the expression can be checked by the TypeScript compiler, whole class of runtime errors is mitigated beforehand.
