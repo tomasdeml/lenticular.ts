@@ -1,7 +1,7 @@
 # lenticular.ts
-Lenses are functions that provide reusable views into deep data structures. Lenses are bidirectional as they can be composed to get or set arbitrary data within a deeply-nested, immutable data structure.
+Lenses are functions that provide reusable views into deep data structures. Lenses can be composed to get or set arbitrary data within a deeply-nested, *immutable* data structure.
 
-The novelty of lenticular.ts lies in strongly-typed composition of lenses for deeply-nested views into immutable objects. Instead of hard-coding names of object properties, lenticular.ts allows you to define the view path using a function expression. Because the expression can be checked by the TypeScript compiler, whole class of runtime errors is mitigated beforehand.
+The novelty of lenticular.ts lies in strongly-typed composition of lenses for deeply-nested views. Instead of hard-coding names of object properties, lenticular.ts allows you to define the view path using a function expression. Because the expression can be checked by the TypeScript compiler, whole class of runtime errors is mitigated beforehand.
 
 Lenticular.ts supports both object and array-typed properties with fallback in case of a null/undefined values in the path.
 
