@@ -53,14 +53,12 @@ const expression6 = (s: IState, i, j) => s.list.items[i].attributes[j]; // Conta
 const expression7 = s => s.missingProperty.anotherMissingProperty; // Defines path to non-existent properties that will be initialized during lens.set() invocation
 ```
 
-## How To Try 
-1. Install bobril-build globally:
+## How To Build 
+1. Install gulp globally:
   ```
-  npm i bobril-build -g
+  npm i gulp -g
   ``` 
-2. Build lenticular.ts with bobril-build:
+2. Build lenticular.ts with gulp:
   ```
-  bb
+  gulp
   ```
-3. Navigate to `http://localhost:8080/`
-4. Open JavaScript console to see examples 
