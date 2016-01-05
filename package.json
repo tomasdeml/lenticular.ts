@@ -1,22 +1,32 @@
 {
-  "name": "simple-app",
+  "name": "lenticular.ts",
   "version": "1.0.0",
-  "description": "",
+  "description": "(Yet another) implementation of functional lenses in JavaScript/TypeScript.",
   "typescript": {
-    "main": "src/app.ts"
+    "main": "./index.ts",
+    "definition": "./index.d.ts"
   },
-  "bobril": {
-    "title": "Bobril Hello World"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomasdeml/lenticular.ts"
   },
-  "author": "keeema",
-  "license": "",
-  "dependencies": {
-    "bobril": "^4.20.0"
+  "keywords": [
+    "lens",
+    "lenses",
+    "typescript"
+  ],
+  "author": {
+    "name": "Tomas Deml",
+    "email": "deml.tomas@gmail.com"
   },
-  "scripts": {
-    "test": "jasmine"
-  },
+  "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
-    "jasmine": "^2.4.1"
+    "gulp": "^3.9.0",
+    "gulp-jasmine": "^2.2.1",
+    "gulp-typescript": "^2.10.0",
+    "jasmine": "^2.4.1",
+    "jasmine-core": "^2.4.1",
+    "merge2": "^0.3.6"
   }
 }

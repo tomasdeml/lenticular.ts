@@ -2,22 +2,13 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "moduleResolution": "node",
-        "isolatedModules": false,
-        "jsx": "react",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "declaration": false,
+        "declaration": true,
         "noImplicitAny": false,
-        "removeComments": true,
-        "noLib": false,
-        "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": true
+        "removeComments": false,
+        "moduleResolution": "node",
+        "noLib": false
     },
-    "filesGlob": [
-        "./**/*.ts",
-        "!./node_modules/bobril-build/**/*.*",
-        "!./node_modules/typescript/**/*.*"
-    ],
-    "exclude": []
+    "exclude": [
+        "node_modules"
+    ]
 }

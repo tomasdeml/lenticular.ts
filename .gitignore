@@ -29,4 +29,10 @@ node_modules
 # vim swap file
 *.swp
 
-dist
+# generated TS files
+index.d.ts
+index.js
+
+# output dirs
+release
+spec-release

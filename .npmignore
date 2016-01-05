@@ -1,0 +1,6 @@
+.*
+release/spec
+spec
+spec-release
+tsconfig.json
+gulpfile.js

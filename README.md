@@ -39,8 +39,6 @@ const newState = nameOfSecondItem.set(state, 'Updated Item Name'); // Returns a 
 const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); // Invokes a callback by passing it the current value of the expression and using its return value for a set() call
 ```
 
-See [page.ts source](src/page.ts) for complete example.
-
 ## Expression Format
 The path expression should be defined with an function containing a single return expression (currently the expression must be contained in a `function` with a `return` keyword). The expression must start with a reference to the root object and must end with a reference to the property to get/set/modify. The expression can contain variable array indexes (e.g. `[i]`, `[j]` etc.), static indexes (e.g. `1`,`3` etc.). If the expression contains variable array indexes, all their values must be provided when creating a lens from the path in the order that matches declaration of the indexes in function arguments.
 

@@ -1,5 +1,12 @@
 import * as lenses from './lenses';
 
+export type IPathSegment = IPropertySegment | IStaticArrayIndexSegment | IVariableArrayIndexSegment;
+export type IPath = IPathSegment[];
+
+export interface IPropertySegment { property: string; }
+export interface IStaticArrayIndexSegment { staticIndex: number; }
+export interface IVariableArrayIndexSegment { variableIndexPosition: number; }
+
 export function pathFromExpression(expression: Function): IPath {
     const pathExpression = extractExpression(expression);
     const rawSegments = pathExpression.split('.');
@@ -14,13 +21,6 @@ export function lensFromPath(path: IPath, ...variableIndexes: number[]): lenses.
 export function prettifyPath(path: IPath): string {
     return path.map(s => s.toString()).join('.');
 }
-
-type IPathSegment = IPropertySegment | IStaticArrayIndexSegment | IVariableArrayIndexSegment;
-type IPath = IPathSegment[];
-
-interface IPropertySegment { property: string; }
-interface IStaticArrayIndexSegment { staticIndex: number; }
-interface IVariableArrayIndexSegment { variableIndexPosition: number; }
 
 const funcExpressionMatcher = /\{\s*return\s*(.+);?\}/mi;
 function extractExpression(func: Function): string {

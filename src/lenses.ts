@@ -43,7 +43,7 @@ export function arrayIndexLens(index: number): ILens {
 export function fallbackFor(lens: ILens, getterFallbackValue, setterFallbackValue): ILens {
     return newLens(
             obj => !!obj ? lens.get(obj) : getterFallbackValue,
-            (obj, value) => lens.set(!!obj ? obj : setterFallbackValue, value));
+            (obj, value) => lens.set(obj || setterFallbackValue, value));
 }
 
 export function compose(lenses: ILens[]): ILens {
@@ -54,9 +54,9 @@ export function compose(lenses: ILens[]): ILens {
                 return lens2.get(nextObj);
             },
             (obj, val) => {
-                const nextObj = lens1.get(obj);
-                const newValue = lens2.set(nextObj, val);
-                return lens1.set(obj, newValue);
+                const parentObj = lens1.get(obj);
+                const newParentObj = lens2.set(parentObj, val);
+                return lens1.set(obj, newParentObj);
             }
         ),
         rootLens);
