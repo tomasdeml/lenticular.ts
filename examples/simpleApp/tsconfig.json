@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node"
+    },
+    "compileOnSave": false,
+    "files": [
+        "src/app.ts",
+        "src/page.ts"
+    ]
+}

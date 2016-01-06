@@ -1,0 +1,20 @@
+{
+  "name": "simple-app",
+  "version": "1.0.0",
+  "description": "",
+  "typescript": {
+    "main": "src/app.ts"
+  },
+  "bobril": {
+    "title": "Lenticular.ts example app"
+  },
+  "author": {
+    "name": "Tomas Deml",
+    "email": "deml.tomas@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bobril": "^4.20.0",
+    "lenticular.ts": "^1.0.0"
+  }
+}
