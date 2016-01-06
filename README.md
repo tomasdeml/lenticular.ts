@@ -57,8 +57,12 @@ const expression7 = s => s.missingProperty.anotherMissingProperty; // Defines pa
 1. Install gulp globally:
   ```
   npm i gulp -g
+  ```
+2. Restore npm packages in lenticular.ts:
   ``` 
-2. Build lenticular.ts with gulp:
+  npm i
+  ```
+3. Build lenticular.ts with gulp:
   ```
   gulp
   ```
