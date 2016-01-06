@@ -2,6 +2,7 @@
   "name": "lenticular.ts",
   "version": "1.0.0",
   "description": "(Yet another) implementation of functional lenses in JavaScript/TypeScript.",
+  "main": "./index.js",
   "typescript": {
     "main": "./index.ts",
     "definition": "./index.d.ts"
@@ -24,6 +25,7 @@
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-jasmine": "^2.2.1",
+    "gulp-rename": "^1.2.2",
     "gulp-typescript": "^2.10.0",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",

@@ -34,5 +34,6 @@ index.d.ts
 index.js
 
 # output dirs
-release
-spec-release
+dist
+_package
+_spec-release
