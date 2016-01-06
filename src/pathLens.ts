@@ -13,7 +13,7 @@ export function pathFromExpression(expression: Function): IPath {
     return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
 }
 
-export function lensFromPath(path: IPath, ...variableIndexes: number[]): lenses.ILens {
+export function lensFromPath(path: IPath, variableIndexes: number[]): lenses.ILens {
     const pathSegments = path.map(s => variableArrayIndexSegmentToStatic(s, variableIndexes));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
