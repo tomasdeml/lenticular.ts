@@ -12,7 +12,7 @@ export function pathFromExpression<TValue>(expression: (...any) => TValue): IPat
     return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
 }
 
-export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexes: number[]): lenses.ILens<TValue, TValue> {
+export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexes?: number[]): lenses.ILens<TValue, TValue> {
     const pathSegments = path.map(s => variableArrayIndexSegmentToStatic(s, variableIndexes));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
