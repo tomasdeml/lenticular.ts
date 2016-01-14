@@ -1,24 +1,23 @@
 import * as lenses from './lenses';
 
+export interface IPath<TValue> extends Array<IPathSegment> { }
 export type IPathSegment = IPropertySegment | IStaticArrayIndexSegment | IVariableArrayIndexSegment;
-export type IPath = IPathSegment[];
-
 export interface IPropertySegment { property: string; }
 export interface IStaticArrayIndexSegment { staticIndex: number; }
 export interface IVariableArrayIndexSegment { variableIndexPosition: number; }
 
-export function pathFromExpression(expression: Function): IPath {
+export function pathFromExpression<TValue>(expression: (...any) => TValue): IPath<TValue> {
     const pathExpression = extractExpression(expression);
     const rawSegments = pathExpression.split('.');
     return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
 }
 
-export function lensFromPath(path: IPath, variableIndexes: number[]): lenses.ILens {
+export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexes: number[]): lenses.ILens<TValue, TValue> {
     const pathSegments = path.map(s => variableArrayIndexSegmentToStatic(s, variableIndexes));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
 
-export function prettifyPath(path: IPath): string {
+export function prettifyPath(path: IPath<any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
@@ -85,7 +84,7 @@ function isVariableIndex(index: string): boolean {
     return isNaN(parseInt(index));
 }
 
-function lensForPathSegment(segment: IPathSegment): lenses.ILens {
+function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any> {
     if (isPropertySegment(segment)) {
         return lenses.fallbackFor(lenses.attributeLens(segment.property), undefined, {});
     } else if (isStaticArrayIndexSegment(segment)) {

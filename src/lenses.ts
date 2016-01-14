@@ -1,24 +1,24 @@
 import shallowCopy from './shallowCopy';
 
-export interface ILens {
-    get: ILensGetter;
-    set: ILensSetter;
-    modify: ILensModifier;
+export interface ILens<TInValue, TOutValue> {
+    get: ILensGetter<TOutValue>;
+    set: ILensSetter<TInValue>;
+    modify: ILensModifier<TInValue, TOutValue>;
 }
 
-export interface ILensGetter {
-    (obj): any;
+export interface ILensGetter<TValue> {
+    (obj): TValue;
 }
 
-export interface ILensSetter {
-    (obj, value): any;
+export interface ILensSetter<TValue> {
+    (obj, value: TValue);
 }
 
-export interface ILensModifier {
-    (obj, func: (value) => any): any;
+export interface ILensModifier<TInValue, TOutValue> {
+    (obj, func: (value: TOutValue) => TInValue);
 }
 
-export function attributeLens(name: string): ILens {
+export function attributeLens(name: string): ILens<any, any> {
     return newLens(
         (obj) => obj[name],
         (obj, val) => {
@@ -29,7 +29,7 @@ export function attributeLens(name: string): ILens {
     );
 }
 
-export function arrayIndexLens(index: number): ILens {
+export function arrayIndexLens(index: number): ILens<any, any> {
     return newLens(
         (arr) => arr[index],
         (arr: any[], val) => {
@@ -40,13 +40,13 @@ export function arrayIndexLens(index: number): ILens {
     );
 }
 
-export function fallbackFor(lens: ILens, getterFallbackValue, setterFallbackValue): ILens {
+export function fallbackFor(lens: ILens<any, any>, getterFallbackValue, setterFallbackValue): ILens<any, any> {
     return newLens(
             obj => !!obj ? lens.get(obj) : getterFallbackValue,
             (obj, value) => lens.set(obj || setterFallbackValue, value));
 }
 
-export function compose(lenses: ILens[]): ILens {
+export function compose(lenses: ILens<any, any>[]): ILens<any, any> {
     return lenses.reduce((lens1, lens2) =>
         newLens(
             (obj) => {
@@ -67,7 +67,7 @@ const rootLens = newLens(
     (obj, val) => val
 );
 
-function newLens(getter: ILensGetter, setter: ILensSetter): ILens {
+function newLens(getter: ILensGetter<any>, setter: ILensSetter<any>): ILens<any, any> {
     return {
         get: getter,
         set: setter,
