@@ -21,7 +21,7 @@ export function prettifyPath(path: IPath<any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
-const funcExpressionMatcher = /\{\s*return\s*(.+);?\}/mi;
+const funcExpressionMatcher = /return\s*([^;}]+);?/mi;
 function extractExpression(func: Function): string {
     const expressionMatch = funcExpressionMatcher.exec(func.toString());
     return expressionMatch && expressionMatch[1];
