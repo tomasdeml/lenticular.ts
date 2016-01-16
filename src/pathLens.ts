@@ -7,12 +7,17 @@ export interface IStaticArrayIndexSegment { staticIndex: number; }
 export interface IVariableArrayIndexSegment { variableIndexPosition: number; }
 
 export function pathFromExpression<TValue>(expression: (...any) => TValue): IPath<TValue> {
-    const pathExpression = extractExpression(expression);
+    const pathExpression = extractPathExpression(expression);
+    if (!pathExpression) {
+        throw new Error(`Failed to process the expression: "${expression.toString()}"`);
+    }
+
     const rawSegments = pathExpression.split('.');
     return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
 }
 
 export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexes?: number[]): lenses.ILens<TValue, TValue> {
+    validateVariableIndexesInPathSatisfied(path, variableIndexes);
     const pathSegments = path.map(s => variableArrayIndexSegmentToStatic(s, variableIndexes));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
@@ -21,10 +26,28 @@ export function prettifyPath(path: IPath<any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
-const funcExpressionMatcher = /return\s*([^;}]+);?/mi;
-function extractExpression(func: Function): string {
-    const expressionMatch = funcExpressionMatcher.exec(func.toString());
-    return expressionMatch && expressionMatch[1];
+function validateVariableIndexesInPathSatisfied(path: IPath<any>, variableIndexes: number[]) {
+    const numberOfVariableArrayIndexSegments = path.filter(s => isVariableArrayIndexSegment(s)).length;
+    const pathContainsVariableIndexes = numberOfVariableArrayIndexSegments > 0;
+
+    if (pathContainsVariableIndexes && (!variableIndexes || variableIndexes.length === 0)) {
+        throw new Error(
+            'The path contains variable array indexes however no values for the indexes were passed in the second argument.'
+        );
+    }
+
+    if (pathContainsVariableIndexes && variableIndexes && variableIndexes.length !== numberOfVariableArrayIndexSegments) {
+        throw new Error(
+            `The path contains ${numberOfVariableArrayIndexSegments} variable array index(es) ` +
+            `however ${variableIndexes.length} value(s) for the indexes were passed in the second argument.`
+        );
+    }
+}
+
+const pathExpressionMatcher = /return\s*([^;}]+);?/mi;
+function extractPathExpression(expression: Function): string {
+    const pathMatch = pathExpressionMatcher.exec(expression.toString());
+    return pathMatch && pathMatch[1];
 }
 
 function skipPathRoot(path: string[]): string[] {
@@ -91,7 +114,7 @@ function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any> {
         return lenses.fallbackFor(lenses.arrayIndexLens(segment.staticIndex), undefined, []);
     }
 
-    throw new Error(`Unsupported path segment ${JSON.stringify(segment)}`);
+    throw new Error(`Encountered unsupported path segment ${JSON.stringify(segment)}`);
 }
 
 function isPropertySegment(segment: IPathSegment): segment is IPropertySegment {
