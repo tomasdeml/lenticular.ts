@@ -7,8 +7,7 @@ Lenticular.ts supports both object and array-typed properties with fallback in c
 
 ## Example Usage
 ```javascript
-import * as lenses from './lenticular.ts/src/lenses';
-import { pathFromExpression, lensFromPath } from './lenticular.ts/src/pathLens';
+import { pathFromExpression, lensFromPath } from 'lenticular.ts';
 
 interface IState {
     list: IListState;
