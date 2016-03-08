@@ -35,7 +35,7 @@ const nameOfItemAtIndex = pathFromExpression((s: IState, i) => s.list.items[i].n
 const nameOfSecondItem = lensFromPath(nameOfItemAtIndex, [1]); // Creates a lens from the path with variable array indexes being replaced with values from the passed array
 const name = nameOfSecondItem.get(state); // Returns 'Second Item Name'
 const newState = nameOfSecondItem.set(state, 'Updated Item Name'); // Returns a shallow copy of state with second item having updated name
-const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); // Invokes a callback by passing it the current value of the expression and using its return value for a set() call
+const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); // Invokes a callback by passing it ***the current value*** of the expression and using its return value for a set() call
 ```
 
 See [page.ts](examples/simpleApp/src/page.ts) in sample application for a complete example.
