@@ -1,24 +1,24 @@
 import * as lenses from './lenses';
 
 export interface IPath<TValue> extends Array<IPathSegment> { }
-export type IPathSegment = IPropertySegment | IStaticArrayIndexSegment | IVariableArrayIndexSegment;
+export type IPathSegment = IPropertySegment | IArrayIndexSegment | IVariableIndexSegment;
 export interface IPropertySegment { property: string; }
-export interface IStaticArrayIndexSegment { staticIndex: number; }
-export interface IVariableArrayIndexSegment { variableIndexPosition: number; }
+export interface IArrayIndexSegment { index: number; }
+export interface IVariableIndexSegment { variableIndexPosition: number; }
 
 export function pathFromExpression<TValue>(expression: (...any) => TValue): IPath<TValue> {
     const pathExpression = extractPathExpression(expression);
     if (!pathExpression) {
-        throw new Error(`Failed to process the expression: "${expression.toString()}"`);
+        throw new Error(`Failed to process expression "${expression.toString()}"`);
     }
 
     const rawSegments = pathExpression.split('.');
     return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
 }
 
-export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexes?: number[]): lenses.ILens<TValue, TValue> {
-    validateVariableIndexesInPathSatisfied(path, variableIndexes);
-    const pathSegments = path.map(s => variableArrayIndexSegmentToStatic(s, variableIndexes));
+export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexValues?: (number | string)[]): lenses.ILens<TValue, TValue> {
+    validateVariableIndexesInPathSatisfied(path, variableIndexValues);
+    const pathSegments = path.map(s => resolveSegment(s, variableIndexValues));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
 
@@ -26,21 +26,22 @@ export function prettifyPath(path: IPath<any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
-function validateVariableIndexesInPathSatisfied(path: IPath<any>, variableIndexes: number[]) {
-    const numberOfVariableArrayIndexSegments = path.filter(s => isVariableArrayIndexSegment(s)).length;
-    const pathContainsVariableIndexes = numberOfVariableArrayIndexSegments > 0;
+function validateVariableIndexesInPathSatisfied(path: IPath<any>, variableIndexValues: any[]) {
+    const numberOfVariableIndexSegments = path.filter(s => isVariableIndexSegment(s)).length;
+    const pathContainsVariableIndexes = numberOfVariableIndexSegments > 0;
 
-    if (pathContainsVariableIndexes && (!variableIndexes || variableIndexes.length === 0)) {
-        throw new Error(
-            'The path contains variable array indexes however no values for the indexes were passed in the second argument.'
-        );
+    if (!pathContainsVariableIndexes) {
+        return;
     }
 
-    if (pathContainsVariableIndexes && variableIndexes && variableIndexes.length !== numberOfVariableArrayIndexSegments) {
+    if (!variableIndexValues || variableIndexValues.length === 0) {
+        throw new Error('The path contains variable indexes however no values for the indexes were passed in the second argument.');
+    }
+
+    if (variableIndexValues && variableIndexValues.length !== numberOfVariableIndexSegments) {
         throw new Error(
-            `The path contains ${numberOfVariableArrayIndexSegments} variable array index(es) ` +
-            `however ${variableIndexes.length} value(s) for the indexes were passed in the second argument.`
-        );
+            `The path contains ${numberOfVariableIndexSegments} variable index(es) ` +
+            `however ${variableIndexValues.length} value(s) for the indexes were passed in the second argument.`);
     }
 }
 
@@ -65,11 +66,12 @@ function pathSegmentsFromString(segments: IPathSegment[], nextRawSegment: string
     const index = indexerMatch[2];
 
     if (isVariableIndex(index)) {
+        // TODO Store last index position in reduced value instead of finding it on each pass
         const nextVariableIndexPosition = findNextVariableIndexPosition(segments);
-        return segments.concat(propertySegment(property), variableArrayIndexSegment(nextVariableIndexPosition));
+        return segments.concat(propertySegment(property), variableIndexSegment(nextVariableIndexPosition));
     }
 
-    return segments.concat(propertySegment(property), staticArrayIndexSegment(Number(index)));
+    return segments.concat(propertySegment(property), arrayIndexSegment(Number(index)));
 }
 
 function propertySegment(property: string): IPropertySegment {
@@ -79,7 +81,7 @@ function propertySegment(property: string): IPropertySegment {
     };
 }
 
-function variableArrayIndexSegment(indexPosition: number): IVariableArrayIndexSegment {
+function variableIndexSegment(indexPosition: number): IVariableIndexSegment {
     return {
         variableIndexPosition: indexPosition,
         toString: () => `[$${indexPosition}]`
@@ -87,12 +89,12 @@ function variableArrayIndexSegment(indexPosition: number): IVariableArrayIndexSe
 }
 
 function findNextVariableIndexPosition(segments: IPathSegment[]): number {
-    return segments.filter(isVariableArrayIndexSegment).length;
+    return segments.filter(isVariableIndexSegment).length;
 }
 
-function staticArrayIndexSegment(index: number): IStaticArrayIndexSegment {
+function arrayIndexSegment(index: number): IArrayIndexSegment {
     return {
-        staticIndex: index,
+        index,
         toString: () => `[${index}]`
     };
 }
@@ -110,8 +112,8 @@ function isVariableIndex(index: string): boolean {
 function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any> {
     if (isPropertySegment(segment)) {
         return lenses.fallbackFor(lenses.attributeLens(segment.property), undefined, {});
-    } else if (isStaticArrayIndexSegment(segment)) {
-        return lenses.fallbackFor(lenses.arrayIndexLens(segment.staticIndex), undefined, []);
+    } else if (isArrayIndexSegment(segment)) {
+        return lenses.fallbackFor(lenses.arrayIndexLens(segment.index), undefined, []);
     }
 
     throw new Error(`Encountered unsupported path segment ${JSON.stringify(segment)}`);
@@ -121,18 +123,22 @@ function isPropertySegment(segment: IPathSegment): segment is IPropertySegment {
     return 'property' in segment;
 }
 
-function isStaticArrayIndexSegment(segment: IPathSegment): segment is IStaticArrayIndexSegment {
-    return 'staticIndex' in segment;
+function isArrayIndexSegment(segment: IPathSegment): segment is IArrayIndexSegment {
+    return 'index' in segment;
 }
 
-function isVariableArrayIndexSegment(segment: IPathSegment): segment is IVariableArrayIndexSegment {
+function isVariableIndexSegment(segment: IPathSegment): segment is IVariableIndexSegment {
     return 'variableIndexPosition' in segment;
 }
 
-function variableArrayIndexSegmentToStatic(segment: IPathSegment, variableIndexes: number[]): IPathSegment {
-    if (isVariableArrayIndexSegment(segment)) {
-        const staticIndex = variableIndexes[segment.variableIndexPosition];
-        return staticArrayIndexSegment(staticIndex);
+function resolveSegment(segment: IPathSegment, variableIndexValues: (number | string)[]): IPathSegment {
+    if (isVariableIndexSegment(segment)) {
+        const variableIndexValue = variableIndexValues[segment.variableIndexPosition];
+        if (typeof variableIndexValue === 'number') {
+            return arrayIndexSegment(variableIndexValue);
+        } else {
+            return propertySegment(<string>variableIndexValue);
+        }
     }
 
     return segment;

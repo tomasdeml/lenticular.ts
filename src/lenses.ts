@@ -22,7 +22,7 @@ export function attributeLens(name: string): ILens<any, any> {
     return newLens(
         (obj) => obj[name],
         (obj, val) => {
-            let newObj = shallowCopy(obj);
+            const newObj = shallowCopy(obj);
             newObj[name] = val;
             return newObj;
         }
@@ -33,7 +33,10 @@ export function arrayIndexLens(index: number): ILens<any, any> {
     return newLens(
         (arr) => arr[index],
         (arr: any[], val) => {
-            let newArr = arr.slice();
+            if (!Array.isArray(arr)) {
+                throw new Error(`Expected value ${arr} to be an Array. arrayIndexLens() cannot be used to set a value into an object - use attributeLens() instead.`);
+            }
+            const newArr = arr.slice();
             newArr[index] = val;
             return newArr;
         }
