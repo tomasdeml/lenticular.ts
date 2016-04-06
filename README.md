@@ -31,11 +31,16 @@ const state: IState = {
     }
 };
 
-const nameOfItemAtIndex = pathFromExpression((s: IState, i) => s.list.items[i].name); // Creates a path for lens from passed expression
-const nameOfSecondItem = lensFromPath(nameOfItemAtIndex, [1]); // Creates a lens from the path with variable array indexes being replaced with values from the passed array
-const name = nameOfSecondItem.get(state); // Returns 'Second Item Name'
-const newState = nameOfSecondItem.set(state, 'Updated Item Name'); // Returns a shallow copy of state with second item having updated name
-const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); // Invokes a callback by passing it ***the current value*** of the expression and using its return value for a set() call
+// Create a path for lens from passed expression
+const nameOfItemAtIndex = pathFromExpression((s: IState, i) => s.list.items[i].name); 
+// Create a lens from the path with variable array indexes being replaced with values from the passed array
+const nameOfSecondItem = lensFromPath(nameOfItemAtIndex, [1]); 
+// Return 'Second Item Name'
+const name = nameOfSecondItem.get(state);
+// Return a shallow copy of state with second item having updated name
+const newState = nameOfSecondItem.set(state, 'Updated Item Name'); 
+// Invoke a callback by passing it ***the current value*** of the expression and using its return value for a set() call
+const newState2 = nameOfSecondItem.modify(state, name => name + ' modified'); 
 ```
 
 See [page.ts](examples/simpleApp/src/page.ts) in sample application for a complete example.
@@ -45,13 +50,20 @@ The path expression should be defined with an function containing a single retur
 
 ### Examples of Supported Expression Formats
 ```javascript
-const expression1 = (s: IState) => s.list; // Path defined with an arrow function (that must be currently transpiled by TSC to an ordinary function)
-const expression2 = function(s: IState) { return s.list; }; // Path defined with an ordinary function
-const epxression3 = s => s.list; // Will not be checked by TypeScript compiler as there are no type information available
-const expression4 = (s: IState) => s.list.items[0].name; // Contains static array index pointing to the first item
-const expression5 = (s: IState) => s.list.items[10].name; // Contains static array index pointing to a non-existent item in the array - the item will be created during lens.set() invocation
-const expression6 = (s: IState, i, j) => s.list.items[i].attributes[j]; // Contains two variable array indexes
-const expression7 = s => s.missingProperty.anotherMissingProperty; // Defines path to non-existent properties that will be initialized during lens.set() invocation
+// Path defined with an arrow function (that must be currently transpiled by TSC to an ordinary function)
+const expression1 = (s: IState) => s.list; 
+// Path defined with an ordinary function
+const expression2 = function(s: IState) { return s.list; }; 
+// Will not be checked by TypeScript compiler as there are no type information available
+const expression3 = s => s.list; 
+// Contains static array index pointing to the first item
+const expression4 = (s: IState) => s.list.items[0].name; 
+// Contains static array index pointing to a non-existent item in the array - the item will be created during lens.set() invocation
+const expression5 = (s: IState) => s.list.items[10].name; 
+// Contains two variable array indexes
+const expression6 = (s: IState, i, j) => s.list.items[i].attributes[j]; 
+// Defines path to non-existent properties that will be initialized during lens.set() invocation
+const expression7 = s => s.missingProperty.anotherMissingProperty; 
 ```
 
 ## How To Build 
