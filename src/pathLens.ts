@@ -13,7 +13,7 @@ export function pathFromExpression<TValue>(expression: (...any) => TValue): IPat
     }
 
     const rawSegments = pathExpression.split('.');
-    return skipPathRoot(rawSegments).reduce(pathSegmentsFromString, []);
+    return skipPathRoot(rawSegments.reduce(pathSegmentsFromString, []));
 }
 
 export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexValues?: (number | string)[]): lenses.ILens<TValue, TValue> {
@@ -51,7 +51,7 @@ function extractPathExpression(expression: Function): string {
     return pathMatch && pathMatch[1];
 }
 
-function skipPathRoot(path: string[]): string[] {
+function skipPathRoot(path: IPathSegment[]): IPathSegment[] {
     return path.splice(1);
 }
 
