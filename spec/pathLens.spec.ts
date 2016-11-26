@@ -113,6 +113,26 @@ describe('Path Lens', () => {
             .toThrow(new Error('The path contains 2 variable index(es) however 3 value(s) for the indexes were passed in the second argument.'));
         });
     });
+
+    describe('Lens for root array', () => {
+        it('can get value', () => {
+            const path = sut.pathFromExpression((items: IItem[]) => items[1].attributes[0]);
+            const lens = sut.lensFromPath(path);
+
+            expect(lens.get(data().list.items)).toEqual('Attribute 1');
+        });
+
+        it('can set value', () => {
+            const path = sut.pathFromExpression((items: IItem[]) => items[1].attributes[0]);
+            const lens = sut.lensFromPath(path);
+
+            const actualData = lens.set(data().list.items, 'Updated Attribute 1');
+            const expectedData = data().list.items;
+            expectedData[1].attributes[0] = 'Updated Attribute 1';
+            expect(actualData).toEqual(expectedData);
+        });
+    });
+
 });
 
 describe('Path Parser', () => {
