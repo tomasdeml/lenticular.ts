@@ -1,12 +1,12 @@
 import * as lenses from './lenses';
 
-export interface IPath<TValue> extends Array<IPathSegment> { }
+export interface IPath<TObj, TValue> extends Array<IPathSegment> { }
 export type IPathSegment = IPropertySegment | IArrayIndexSegment | IVariableIndexSegment;
 export interface IPropertySegment { property: string; }
 export interface IArrayIndexSegment { index: number; }
 export interface IVariableIndexSegment { variableIndexPosition: number; }
 
-export function pathFromExpression<TValue>(expression: (...any) => TValue): IPath<TValue> {
+export function pathFromExpression<TObj, TValue>(expression: (obj: TObj, ...variables: (number | string)[]) => TValue): IPath<TObj, TValue> {
     const pathExpression = extractPathExpression(expression);
     if (!pathExpression) {
         throw new Error(`Failed to process expression "${expression.toString()}"`);
@@ -16,17 +16,17 @@ export function pathFromExpression<TValue>(expression: (...any) => TValue): IPat
     return skipPathRoot(rawSegments.reduce(pathSegmentsFromString, []));
 }
 
-export function lensFromPath<TValue>(path: IPath<TValue>, variableIndexValues?: (number | string)[]): lenses.ILens<TValue, TValue> {
+export function lensFromPath<TObj, TValue>(path: IPath<TObj, TValue>, variableIndexValues?: (number | string)[]): lenses.ILens<TObj, TValue, TValue> {
     validateVariableIndexesInPathSatisfied(path, variableIndexValues);
     const pathSegments = path.map(s => resolveSegment(s, variableIndexValues));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
 
-export function prettifyPath(path: IPath<any>): string {
+export function prettifyPath(path: IPath<any, any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
-function validateVariableIndexesInPathSatisfied(path: IPath<any>, variableIndexValues: any[]) {
+function validateVariableIndexesInPathSatisfied(path: IPath<any, any>, variableIndexValues: any[]) {
     const numberOfVariableIndexSegments = path.filter(s => isVariableIndexSegment(s)).length;
     const pathContainsVariableIndexes = numberOfVariableIndexSegments > 0;
 
@@ -109,7 +109,7 @@ function isVariableIndex(index: string): boolean {
     return isNaN(parseInt(index));
 }
 
-function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any> {
+function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any, any> {
     if (isPropertySegment(segment)) {
         return lenses.fallbackFor(lenses.attributeLens(segment.property), undefined, {});
     } else if (isArrayIndexSegment(segment)) {
