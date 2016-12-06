@@ -137,18 +137,18 @@ describe('Path Lens', () => {
 
 describe('Path Parser', () => {
     it('can create path from an untyped arrow expression', () => {
-        const path = sut.pathFromExpression((d, i) => d.foo.bar[i].baz[5]);
+        const path = sut.pathFromExpression((d, i) => d[2].foo.bar[i].baz[5]);
 
         const actualPath = JSON.stringify(path); // Workaround for jasmine array comparison bug (https://github.com/jasmine/jasmine/issues/786)
-        const expectedPath = JSON.stringify([{property: 'foo'}, {property: 'bar'}, {variableIndexPosition: 0}, {property: 'baz'}, {index: 5}]);
+        const expectedPath = JSON.stringify([{index: 2}, {property: 'foo'}, {property: 'bar'}, {variableIndexPosition: 0}, {property: 'baz'}, {index: 5}]);
         expect(actualPath).toEqual(expectedPath);
     });
 
     it('can create path from an untyped function expression', () => {
-        const path = sut.pathFromExpression(function (d, i) { return d.foo.bar[i].baz[5]; });
+        const path = sut.pathFromExpression(function (d, i) { return d[2].foo.bar[i].baz[5]; });
 
         const actualPath = JSON.stringify(path);
-        const expectedPath = JSON.stringify([{property: 'foo'}, {property: 'bar'}, {variableIndexPosition: 0}, {property: 'baz'}, {index: 5}]);
+        const expectedPath = JSON.stringify([{index: 2}, {property: 'foo'}, {property: 'bar'}, {variableIndexPosition: 0}, {property: 'baz'}, {index: 5}]);
         expect(actualPath).toEqual(expectedPath);
     });
 

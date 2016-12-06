@@ -1,24 +1,24 @@
 import shallowCopy from './shallowCopy';
 
-export interface ILens<TInValue, TOutValue> {
-    get: ILensGetter<TOutValue>;
-    set: ILensSetter<TInValue>;
-    modify: ILensModifier<TInValue, TOutValue>;
+export interface ILens<TObj, TInValue, TOutValue> {
+    get: ILensGetter<TObj, TOutValue>;
+    set: ILensSetter<TObj, TInValue>;
+    modify: ILensModifier<TObj, TInValue, TOutValue>;
 }
 
-export interface ILensGetter<TValue> {
-    (obj): TValue;
+export interface ILensGetter<TObj, TValue> {
+    (obj: TObj): TValue;
 }
 
-export interface ILensSetter<TValue> {
-    (obj, value: TValue);
+export interface ILensSetter<TObj, TValue> {
+    (obj: TObj, value: TValue): TObj;
 }
 
-export interface ILensModifier<TInValue, TOutValue> {
-    (obj, func: (value: TOutValue) => TInValue);
+export interface ILensModifier<TObj, TInValue, TOutValue> {
+    (obj: TObj, func: (value: TOutValue) => TInValue): TObj;
 }
 
-export function attributeLens(name: string): ILens<any, any> {
+export function attributeLens(name: string): ILens<any, any, any> {
     return newLens(
         (obj) => obj[name],
         (obj, val) => {
@@ -29,7 +29,7 @@ export function attributeLens(name: string): ILens<any, any> {
     );
 }
 
-export function arrayIndexLens(index: number): ILens<any, any> {
+export function arrayIndexLens(index: number): ILens<any, any, any> {
     return newLens(
         (arr) => arr[index],
         (arr: any[], val) => {
@@ -43,13 +43,13 @@ export function arrayIndexLens(index: number): ILens<any, any> {
     );
 }
 
-export function fallbackFor(lens: ILens<any, any>, getterFallbackValue, setterFallbackValue): ILens<any, any> {
+export function fallbackFor<TObj, TInValue, TOutValue>(lens: ILens<TObj, TInValue, TOutValue>, getterFallbackValue: TOutValue, setterFallbackValue: TObj): ILens<TObj, TInValue, TOutValue> {
     return newLens(
-            obj => !!obj ? lens.get(obj) : getterFallbackValue,
-            (obj, value) => lens.set(obj || setterFallbackValue, value));
+            (obj: TObj) => !!obj ? lens.get(obj) : getterFallbackValue,
+            (obj: TObj, value: TInValue) => lens.set(obj || setterFallbackValue, value));
 }
 
-export function compose(lenses: ILens<any, any>[]): ILens<any, any> {
+export function compose(lenses: ILens<any, any, any>[]): ILens<any, any, any> {
     return lenses.reduce((lens1, lens2) =>
         newLens(
             (obj) => {
@@ -70,7 +70,7 @@ const rootLens = newLens(
     (obj, val) => val
 );
 
-function newLens(getter: ILensGetter<any>, setter: ILensSetter<any>): ILens<any, any> {
+function newLens<TObj, TInValue, TOutValue>(getter: ILensGetter<TObj, TOutValue>, setter: ILensSetter<TObj, TInValue>): ILens<TObj, TInValue, TOutValue> {
     return {
         get: getter,
         set: setter,
