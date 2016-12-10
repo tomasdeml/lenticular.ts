@@ -1,5 +1,5 @@
 {
-  "name": "lenticular.ts",
+  "name": "lenticular-ts",
   "version": "3.0.0",
   "description": "(Yet another) implementation of functional lenses in JavaScript/TypeScript.",
   "main": "./index.js",

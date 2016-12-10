@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bobril": "^4.20.0",
-    "lenticular.ts": "2.*"
+    "bobril": "*",
+    "lenticular-ts": "*"
   }
 }

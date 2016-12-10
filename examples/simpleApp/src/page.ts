@@ -1,5 +1,5 @@
 import * as b from 'bobril';
-import * as lenticular from 'lenticular.ts';
+import * as lenticular from 'lenticular-ts';
 
 interface IState {
     list: IListState;

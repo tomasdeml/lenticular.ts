@@ -7,7 +7,7 @@ Lenticular.ts supports both object and array-typed properties with fallback in c
 
 ## Example Usage
 ```javascript
-import { pathFromExpression, lensFromPath } from 'lenticular.ts';
+import { pathFromExpression, lensFromPath } from 'lenticular-ts';
 
 interface IState {
     list: IListState;
@@ -79,3 +79,4 @@ const expression7 = s => s.missingProperty.anotherMissingProperty;
   ```
   gulp
   ```
+4. Navigate to .\_package for build output 
