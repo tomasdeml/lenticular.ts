@@ -1,6 +1,6 @@
 {
   "name": "lenticular-ts",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "(Yet another) implementation of functional lenses in JavaScript/TypeScript.",
   "main": "./index.js",
   "typescript": {
