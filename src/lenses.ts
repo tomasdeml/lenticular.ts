@@ -22,6 +22,9 @@ export function attributeLens(name: string): ILens<any, any, any> {
     return newLens(
         (obj) => obj[name],
         (obj, val) => {
+            if (Array.isArray(obj)) {
+                throw new Error(`Expected value ${obj} not to be an array as it is being accessed by a string key. Try using a numeric key if you want to treat the value as an array.`);
+            }
             const newObj = shallowCopy(obj);
             newObj[name] = val;
             return newObj;
@@ -34,7 +37,7 @@ export function arrayIndexLens(index: number): ILens<any, any, any> {
         (arr) => arr[index],
         (arr: any[], val) => {
             if (!Array.isArray(arr)) {
-                throw new Error(`Expected value ${arr} to be an Array. arrayIndexLens() cannot be used to set a value into an object - use attributeLens() instead.`);
+                throw new Error(`Expected value ${arr} to be an array as it is being accessed by a numeric key. Try using a string key if want to treat the value as an object.`);
             }
             const newArr = arr.slice();
             newArr[index] = val;
