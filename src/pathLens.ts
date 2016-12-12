@@ -1,12 +1,12 @@
 import * as lenses from './lenses';
 
 export interface IPath<TObj, TValue> extends Array<IPathSegment> { }
-export type IPathSegment = IPropertySegment | IArrayIndexSegment | IVariableIndexSegment;
-export interface IPropertySegment { property: string; }
+export type IPathSegment = IAttributeSegment | IArrayIndexSegment | IVariableIndexSegment;
+export interface IAttributeSegment { attribute: string; }
 export interface IArrayIndexSegment { index: number; }
 export interface IVariableIndexSegment { variableIndexPosition: number; }
 
-export function pathFromExpression<TObj, TValue>(expression: (obj: TObj, ...variables: (number | string)[]) => TValue): IPath<TObj, TValue> {
+export function pathFromExpression<TObj, TValue>(expression: (obj: TObj, ...variableIndexes: (number | string)[]) => TValue): IPath<TObj, TValue> {
     const pathExpression = extractPathExpression(expression);
     if (!pathExpression) {
         throw new Error(`Failed to process expression "${expression.toString()}"`);
@@ -59,25 +59,25 @@ const indexerMatcher = /(\w+)(?:\[(\w+)\])/m;
 function pathSegmentsFromString(segments: IPathSegment[], nextRawSegment: string): IPathSegment[] {
     const indexerMatch = indexerMatcher.exec(nextRawSegment);
     if (!indexerMatch) {
-        return segments.concat(propertySegment(extractPropertyName(nextRawSegment)));
+        return segments.concat(attributeSegment(extractAttributeName(nextRawSegment)));
     }
 
-    const property = indexerMatch[1];
+    const attribute = indexerMatch[1];
     const index = indexerMatch[2];
 
     if (isVariableIndex(index)) {
         // TODO Store last index position in reduced value instead of finding it on each pass
         const nextVariableIndexPosition = findNextVariableIndexPosition(segments);
-        return segments.concat(propertySegment(property), variableIndexSegment(nextVariableIndexPosition));
+        return segments.concat(attributeSegment(attribute), variableIndexSegment(nextVariableIndexPosition));
     }
 
-    return segments.concat(propertySegment(property), arrayIndexSegment(Number(index)));
+    return segments.concat(attributeSegment(attribute), arrayIndexSegment(Number(index)));
 }
 
-function propertySegment(property: string): IPropertySegment {
+function attributeSegment(attribute: string): IAttributeSegment {
     return {
-        property,
-        toString: () => property
+        attribute,
+        toString: () => attribute
     };
 }
 
@@ -99,9 +99,9 @@ function arrayIndexSegment(index: number): IArrayIndexSegment {
     };
 }
 
-const propertyNameMatcher = /\w+/;
-function extractPropertyName(name: string) {
-    const nameMatch = propertyNameMatcher.exec(name);
+const attributeMatcher = /\w+/;
+function extractAttributeName(name: string) {
+    const nameMatch = attributeMatcher.exec(name);
     return nameMatch && nameMatch[0];
 }
 
@@ -110,8 +110,8 @@ function isVariableIndex(index: string): boolean {
 }
 
 function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any, any> {
-    if (isPropertySegment(segment)) {
-        return lenses.fallbackFor(lenses.attributeLens(segment.property), undefined, {});
+    if (isAttributeSegment(segment)) {
+        return lenses.fallbackFor(lenses.attributeLens(segment.attribute), undefined, {});
     } else if (isArrayIndexSegment(segment)) {
         return lenses.fallbackFor(lenses.arrayIndexLens(segment.index), undefined, []);
     }
@@ -119,8 +119,8 @@ function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any, any> 
     throw new Error(`Encountered unsupported path segment ${JSON.stringify(segment)}`);
 }
 
-function isPropertySegment(segment: IPathSegment): segment is IPropertySegment {
-    return 'property' in segment;
+function isAttributeSegment(segment: IPathSegment): segment is IAttributeSegment {
+    return 'attribute' in segment;
 }
 
 function isArrayIndexSegment(segment: IPathSegment): segment is IArrayIndexSegment {
@@ -137,7 +137,7 @@ function resolveSegment(segment: IPathSegment, variableIndexValues: (number | st
         if (typeof variableIndexValue === 'number') {
             return arrayIndexSegment(variableIndexValue);
         } else {
-            return propertySegment(<string>variableIndexValue);
+            return attributeSegment(<string>variableIndexValue);
         }
     }
 
