@@ -22,6 +22,10 @@ export function lensFromPath<TObj, TValue>(path: IPath<TObj, TValue>, variableIn
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
 
+export function objectKey(numberIndex: number): string {
+    return numberIndex.toString();
+}
+
 export function prettifyPath(path: IPath<any, any>): string {
     return path.map(s => s.toString()).join('.');
 }

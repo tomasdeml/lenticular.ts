@@ -92,6 +92,24 @@ describe('Path Lens', () => {
                 expectedData.list.secondAuthor.firstName = 'Updated John';
                 expect(actualData).toEqual(expectedData);
             });
+            
+            it('can get value by number key when used with \'objectKey\' hint', () => {
+                const path = l.pathFromExpression((d: IData, languageCodeId: number) => d.list.items[0].localizedName[languageCodeId]);
+                const lens = l.lensFromPath(path, [l.objectKey(1029)]);
+
+                expect(lens.get(data())).toEqual('Prvni polozka');
+            });
+
+            it('can set value by number key when used with \'objectKey\' hint' , () => {
+                const path = l.pathFromExpression((d: IData, languageCodeId: number) => d.list.items[0].localizedName[languageCodeId]);
+                const lens = l.lensFromPath(path, [l.objectKey(1029)]);
+
+                const actualData = lens.set(data(), 'Prvni polozka - updated');
+                
+                const expectedData = data();
+                expectedData.list.items[0].localizedName[1029] = 'Prvni polozka - updated';
+                expect(actualData).toEqual(expectedData);
+            });
         })
 
         it('throws error on attempt to create a lens without passing values of variable indexes for a path containing variable indexes', () => {
@@ -179,6 +197,7 @@ interface IListData {
 
 interface IItem {
     name: string;
+    localizedName?: { [languageCodeId: number]: string };
     attributes?: string[];
 }
 
@@ -191,7 +210,7 @@ function data(): IData {
     return {
         list: {
             items: [
-                { name: 'First Item Name' },
+                { name: 'First Item Name', localizedName: { 1029: 'Prvni polozka' } },
                 { name: 'Second Item Name', attributes: ['Attribute 1', 'Attribute 2'] }
             ],
             firstAuthor: {
