@@ -1,4 +1,4 @@
-import shallowCopy from './shallowCopy';
+import { shallowCopy } from './shallowCopy';
 
 export interface ILens<TObj, TInValue, TOutValue> {
     get: ILensGetter<TObj, TOutValue>;
@@ -48,8 +48,8 @@ export function arrayIndexLens(index: number): ILens<any, any, any> {
 
 export function fallbackFor<TObj, TInValue, TOutValue>(lens: ILens<TObj, TInValue, TOutValue>, getterFallbackValue: TOutValue, setterFallbackValue: TObj): ILens<TObj, TInValue, TOutValue> {
     return newLens(
-            (obj: TObj) => !!obj ? lens.get(obj) : getterFallbackValue,
-            (obj: TObj, value: TInValue) => lens.set(obj || setterFallbackValue, value));
+        (obj: TObj) => !!obj ? lens.get(obj) : getterFallbackValue,
+        (obj: TObj, value: TInValue) => lens.set(obj || setterFallbackValue, value));
 }
 
 export function compose(lenses: ILens<any, any, any>[]): ILens<any, any, any> {
