@@ -1,5 +1,7 @@
 import { shallowCopy } from './shallowCopy';
 
+type StringIndexable = { [k: string]: any };
+
 export interface ILens<TObj, TInValue, TOutValue> {
     get: ILensGetter<TObj, TOutValue>;
     set: ILensSetter<TObj, TInValue>;
@@ -20,7 +22,7 @@ export interface ILensModifier<TObj, TInValue, TOutValue> {
 
 export function attributeLens(name: string): ILens<any, any, any> {
     return newLens(
-        (obj) => obj[name],
+        (obj: StringIndexable) => obj[name],
         (obj, val) => {
             if (Array.isArray(obj)) {
                 throw new Error(`Expected value ${obj} not to be an array as it is being accessed by a string key. Try using a numeric key if you want to treat the value as an array.`);
@@ -34,7 +36,7 @@ export function attributeLens(name: string): ILens<any, any, any> {
 
 export function arrayIndexLens(index: number): ILens<any, any, any> {
     return newLens(
-        (arr) => arr[index],
+        (arr: StringIndexable) => arr[index],
         (arr: any[], val) => {
             if (!Array.isArray(arr)) {
                 throw new Error(`Expected value ${arr} to be an array as it is being accessed by a numeric key. Try using a string key if want to treat the value as an object.`);
@@ -70,7 +72,7 @@ export function compose(lenses: ILens<any, any, any>[]): ILens<any, any, any> {
 
 const rootLens = newLens(
     (obj) => obj,
-    (obj, val) => val
+    (_obj, val) => val
 );
 
 function newLens<TObj, TInValue, TOutValue>(getter: ILensGetter<TObj, TOutValue>, setter: ILensSetter<TObj, TInValue>): ILens<TObj, TInValue, TOutValue> {

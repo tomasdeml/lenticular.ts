@@ -29,6 +29,7 @@
     "gulp-typescript": "^2.10.0",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",
-    "merge2": "^0.3.6"
+    "merge2": "^0.3.6",
+    "typescript": "~2.2.2"
   }
 }
