@@ -1,7 +1,10 @@
 import * as lenses from './lenses';
 
 
-export interface IPath<TObj, TValue> extends Array<IPathSegment> { }
+export interface IPath<TObj, TValue> extends Array<IPathSegment> {
+    readonly dummyObj_?: TObj; // workaround 'noUnusedLocals'
+    readonly dummyValue_?: TValue; // workaround 'noUnusedLocals'
+}
 export type IPathSegment = IAttributeSegment | IArrayIndexSegment | IVariableIndexSegment;
 export interface IAttributeSegment { attribute: string; }
 export interface IArrayIndexSegment { index: number; }
