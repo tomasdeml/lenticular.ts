@@ -1,7 +1,15 @@
+export interface INameToValueMap { 
+    [key: string]: any;
+}
 export default function<T>(source: T): T {
-    const copy = {};
+    const copy: INameToValueMap = {};
     for (const prop in source) {
-        copy[prop.toString()] = source[prop.toString()];
+        let sourceAsDict = objectAsDict(source);
+        copy[prop.toString()] = sourceAsDict[prop.toString()];
     }
     return <T>copy;
+}
+
+export function objectAsDict(item: any): INameToValueMap {
+    return item as any as INameToValueMap;
 }
