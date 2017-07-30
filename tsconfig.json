@@ -2,11 +2,15 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "declaration": true,
-        "noImplicitAny": false,
-        "removeComments": false,
         "moduleResolution": "node",
-        "noLib": false
+        "noLib": false,
+        "declaration": true,
+        "removeComments": false,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
     },
     "exclude": [
         "node_modules",
