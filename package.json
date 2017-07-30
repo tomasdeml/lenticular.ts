@@ -23,12 +23,14 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
+    "@types/jasmine": "^2.5.53",
     "gulp": "^3.9.0",
     "gulp-jasmine": "^2.2.1",
     "gulp-rename": "^1.2.2",
-    "gulp-typescript": "^2.10.0",
-    "jasmine": "^2.4.1",
+    "gulp-typescript": "^3.2.1",
+    "jasmine": "^2.7.0",
     "jasmine-core": "^2.4.1",
-    "merge2": "^0.3.6"
+    "merge2": "^1.1.0",
+    "typescript": "^2.4.2"
   }
 }
