@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/jasmine": "^2.5.53",
     "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.2",
     "gulp-jasmine": "^2.2.1",
     "gulp-rename": "^1.2.2",
     "gulp-typescript": "^3.2.1",

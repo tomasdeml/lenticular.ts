@@ -3,26 +3,30 @@ var merge = require('merge2');
 var ts = require('gulp-typescript');
 var jasmine = require('gulp-jasmine');
 var rename = require("gulp-rename");
+var clean = require('gulp-clean');
 
 var releaseDir = '_package';
 var specReleaseDir = '_spec-release';
 var tsConfigPath = 'tsconfig.json';
 
-gulp.task('default', ['compileSrc', 'runTests', 'copyOtherPackageFilesToRelease']);
+gulp.task('default', ['cleanDst', 'compileSrc', 'runTests', 'copyOtherPackageFilesToRelease']);
 
-gulp.task('compileSrc', function (cb) {
+gulp.task('cleanDst', function () {
+    return gulp.src([releaseDir, specReleaseDir], { read: false }).pipe(clean());
+});
+
+gulp.task('compileSrc', ['cleanDst'], function () {
     var tsProject = ts.createProject(tsConfigPath);
-    var tsResult = tsProject.src().pipe(ts(tsProject));
+    var tsResult = tsProject.src().pipe(tsProject());
     return merge([
-        tsResult.dts
-            .pipe(gulp.dest(releaseDir)),
+        tsResult.dts.pipe(gulp.dest(releaseDir)),
         tsResult.js
             .pipe(gulp.dest(releaseDir))
             .pipe(gulp.dest(specReleaseDir))
     ]);
 });
 
-gulp.task('runTests', ['copyJasmineCore'], function (cb) {
+gulp.task('runTests', ['compileSrc'], function () {
     return gulp.src(specReleaseDir + '/spec/**/*.spec.js')
         .pipe(jasmine({
             verbose: true,
@@ -30,12 +34,7 @@ gulp.task('runTests', ['copyJasmineCore'], function (cb) {
         }));
 });
 
-gulp.task('copyJasmineCore', function () {
-    return gulp.src('node_modules/jasmine-core/lib/jasmine-core/**/*')
-        .pipe(gulp.dest(specReleaseDir + '/jasmine-core'));
-});
-
-gulp.task('copyOtherPackageFilesToRelease', function (cb) {
+gulp.task('copyOtherPackageFilesToRelease', ['compileSrc'], function () {
     return merge([
         gulp.src('./package.json').pipe(gulp.dest(releaseDir)),
         gulp.src('./npmignore.res')
