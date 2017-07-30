@@ -1,24 +1,28 @@
 import * as lenses from './lenses';
 
-export interface IPath<TObj, TValue> extends Array<IPathSegment> { }
-export type IPathSegment = IAttributeSegment | IArrayIndexSegment | IVariableIndexSegment;
-export interface IAttributeSegment { attribute: string; }
-export interface IArrayIndexSegment { index: number; }
-export interface IVariableIndexSegment { variableIndexPosition: number; }
+export type PathRoot = object | object[];
+export type PathSegment = IAttributeSegment | IArrayIndexSegment | IVariableIndexSegment;
 
-export function pathFromExpression<TObj, TValue>(expression: (obj: TObj, ...variableIndexes: (number | string)[]) => TValue): IPath<TObj, TValue> {
+export interface IPath<TRoot extends PathRoot, TValue> extends Array<PathSegment> {
+    readonly _rootType?: TRoot;
+    readonly _valueType?: TValue;
+}
+export interface IAttributeSegment extends IPrintable { attribute: string; }
+export interface IArrayIndexSegment extends IPrintable { index: number; }
+export interface IVariableIndexSegment extends IPrintable { variableIndexPosition: number; }
+export interface IPrintable { toString(): string; }
+
+export function pathFromExpression<TRoot extends PathRoot, TValue>(expression: (obj: TRoot, ...variableIndexes: (number | string)[]) => TValue)
+    : IPath<TRoot, TValue> {
     const pathExpression = extractPathExpression(expression);
-    if (!pathExpression) {
-        throw new Error(`Failed to process expression "${expression.toString()}"`);
-    }
-
     const rawSegments = pathExpression.split('.');
     return skipPathRoot(rawSegments.reduce(pathSegmentsFromString, []));
 }
 
-export function lensFromPath<TObj, TValue>(path: IPath<TObj, TValue>, variableIndexValues?: (number | string)[]): lenses.ILens<TObj, TValue, TValue> {
+export function lensFromPath<TRoot, TValue>(path: IPath<TRoot, TValue>, variableIndexValues?: (number | string)[])
+    : lenses.ILens<TRoot, TValue, TValue> {
     validateVariableIndexesInPathSatisfied(path, variableIndexValues);
-    const pathSegments = path.map(s => resolveSegment(s, variableIndexValues));
+    const pathSegments = path.map(s => resolveSegment(s, variableIndexValues!));
     return lenses.compose(pathSegments.map(lensForPathSegment));
 }
 
@@ -30,7 +34,7 @@ export function prettifyPath(path: IPath<any, any>): string {
     return path.map(s => s.toString()).join('.');
 }
 
-function validateVariableIndexesInPathSatisfied(path: IPath<any, any>, variableIndexValues: any[]) {
+function validateVariableIndexesInPathSatisfied(path: IPath<any, any>, variableIndexValues?: (number | string)[]) {
     const numberOfVariableIndexSegments = path.filter(s => isVariableIndexSegment(s)).length;
     const pathContainsVariableIndexes = numberOfVariableIndexSegments > 0;
 
@@ -52,15 +56,19 @@ function validateVariableIndexesInPathSatisfied(path: IPath<any, any>, variableI
 const pathExpressionMatcher = /return\s*([^;}]+);?/mi;
 function extractPathExpression(expression: Function): string {
     const pathMatch = pathExpressionMatcher.exec(expression.toString());
-    return pathMatch && pathMatch[1];
+    const pathExpression = pathMatch && pathMatch[1];
+    if (!pathExpression) {
+        throw new Error(`Could not extract path expression from "${expression.toString()}".`);
+    }
+    return pathExpression;
 }
 
-function skipPathRoot(path: IPathSegment[]): IPathSegment[] {
+function skipPathRoot(path: PathSegment[]): PathSegment[] {
     return path.splice(1);
 }
 
 const indexerMatcher = /(\w+)(?:\[(\w+)\])/m;
-function pathSegmentsFromString(segments: IPathSegment[], nextRawSegment: string): IPathSegment[] {
+function pathSegmentsFromString(segments: PathSegment[], nextRawSegment: string): PathSegment[] {
     const indexerMatch = indexerMatcher.exec(nextRawSegment);
     if (!indexerMatch) {
         return segments.concat(attributeSegment(extractAttributeName(nextRawSegment)));
@@ -92,7 +100,7 @@ function variableIndexSegment(indexPosition: number): IVariableIndexSegment {
     };
 }
 
-function findNextVariableIndexPosition(segments: IPathSegment[]): number {
+function findNextVariableIndexPosition(segments: PathSegment[]): number {
     return segments.filter(isVariableIndexSegment).length;
 }
 
@@ -106,14 +114,18 @@ function arrayIndexSegment(index: number): IArrayIndexSegment {
 const attributeMatcher = /\w+/;
 function extractAttributeName(name: string) {
     const nameMatch = attributeMatcher.exec(name);
-    return nameMatch && nameMatch[0];
+    const attributeName = nameMatch && nameMatch[0];
+    if (!attributeName) {
+        throw new Error(`Could not extract attribute name from "${name}".`);
+    }
+    return attributeName;
 }
 
 function isVariableIndex(index: string): boolean {
     return isNaN(parseInt(index));
 }
 
-function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any, any> {
+function lensForPathSegment(segment: PathSegment): lenses.ILens<any, any, any> {
     if (isAttributeSegment(segment)) {
         return lenses.fallbackFor(lenses.attributeLens(segment.attribute), undefined, {});
     } else if (isArrayIndexSegment(segment)) {
@@ -123,19 +135,19 @@ function lensForPathSegment(segment: IPathSegment): lenses.ILens<any, any, any> 
     throw new Error(`Encountered unsupported path segment ${JSON.stringify(segment)}`);
 }
 
-function isAttributeSegment(segment: IPathSegment): segment is IAttributeSegment {
+function isAttributeSegment(segment: PathSegment): segment is IAttributeSegment {
     return 'attribute' in segment;
 }
 
-function isArrayIndexSegment(segment: IPathSegment): segment is IArrayIndexSegment {
+function isArrayIndexSegment(segment: PathSegment): segment is IArrayIndexSegment {
     return 'index' in segment;
 }
 
-function isVariableIndexSegment(segment: IPathSegment): segment is IVariableIndexSegment {
+function isVariableIndexSegment(segment: PathSegment): segment is IVariableIndexSegment {
     return 'variableIndexPosition' in segment;
 }
 
-function resolveSegment(segment: IPathSegment, variableIndexValues: (number | string)[]): IPathSegment {
+function resolveSegment(segment: PathSegment, variableIndexValues: (number | string)[]): PathSegment {
     if (isVariableIndexSegment(segment)) {
         const variableIndexValue = variableIndexValues[segment.variableIndexPosition];
         if (typeof variableIndexValue === 'number') {

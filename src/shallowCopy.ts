@@ -1,7 +1,9 @@
 export default function<T>(source: T): T {
-    const copy = {};
+    const copy = {} as T & Indexable;
     for (const prop in source) {
-        copy[prop.toString()] = source[prop.toString()];
+        copy[prop.toString()] = (source as Indexable)[prop.toString()];
     }
-    return <T>copy;
+    return copy;
 }
+
+type Indexable = { [key: string]: any };

@@ -70,7 +70,7 @@ export function compose(lenses: ILens<any, any, any>[]): ILens<any, any, any> {
 
 const rootLens = newLens(
     (obj) => obj,
-    (obj, val) => val
+    (_obj, val) => val
 );
 
 function newLens<TObj, TInValue, TOutValue>(getter: ILensGetter<TObj, TOutValue>, setter: ILensSetter<TObj, TInValue>): ILens<TObj, TInValue, TOutValue> {
