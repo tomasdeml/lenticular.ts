@@ -20,12 +20,12 @@ export interface ILensModifier<TObj, TInValue, TOutValue> {
 
 export function attributeLens(name: string): ILens<any, any, any> {
     return newLens(
-        (obj) => obj[name],
-        (obj, val) => {
+        (obj: any) => obj[name],
+        (obj: any, val) => {
             if (Array.isArray(obj)) {
                 throw new Error(`Expected value ${obj} not to be an array as it is being accessed by a string key. Try using a numeric key if you want to treat the value as an array.`);
             }
-            const newObj = shallowCopy(obj);
+            const newObj = shallowCopy(obj) as any;
             newObj[name] = val;
             return newObj;
         }
@@ -34,7 +34,7 @@ export function attributeLens(name: string): ILens<any, any, any> {
 
 export function arrayIndexLens(index: number): ILens<any, any, any> {
     return newLens(
-        (arr) => arr[index],
+        (arr: any[]) => arr[index],
         (arr: any[], val) => {
             if (!Array.isArray(arr)) {
                 throw new Error(`Expected value ${arr} to be an array as it is being accessed by a numeric key. Try using a string key if want to treat the value as an object.`);
