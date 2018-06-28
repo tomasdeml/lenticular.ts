@@ -19,7 +19,7 @@ export function pathFromExpression<TRoot extends PathRoot, TValue>(expression: (
     return skipPathRoot(rawSegments.reduce(pathSegmentsFromString, []));
 }
 
-export function lensFromPath<TRoot, TValue>(path: IPath<TRoot, TValue>, variableIndexValues?: (number | string)[])
+export function lensFromPath<TRoot extends PathRoot, TValue>(path: IPath<TRoot, TValue>, variableIndexValues?: (number | string)[])
     : lenses.ILens<TRoot, TValue, TValue> {
     validateVariableIndexesInPathSatisfied(path, variableIndexValues);
     const pathSegments = path.map(s => resolveSegment(s, variableIndexValues!));
