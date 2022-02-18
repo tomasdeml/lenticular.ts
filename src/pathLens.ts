@@ -53,7 +53,7 @@ function validateVariableIndexesInPathSatisfied(path: IPath<any, any>, variableI
     }
 }
 
-const pathExpressionMatcher = /return\s*([^;}]+);?/mi;
+const pathExpressionMatcher = /\s*([^;}]+);?/mi;
 function extractPathExpression(expression: Function): string {
     const pathMatch = pathExpressionMatcher.exec(expression.toString());
     const pathExpression = pathMatch && pathMatch[1];
